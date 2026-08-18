@@ -41,17 +41,23 @@ jobs:
 
       - name: Build zip
         run: |
-          mkdir -p build/Bennu
-          cp -r GameData build/Bennu/
-          cp -r Optional build/Bennu/
-          cp README.md LICENSE CHANGELOG.md build/Bennu/
-          rm -f build/Bennu/GameData/Bennu/Cache/*.bin
-          cd build/Bennu
-          zip -r "../Bennu-${{ steps.ver.outputs.version }}.zip" .
+          mkdir -p build/staging
+          cp -r GameData Optional build/staging/
+          cp README.md LICENSE CHANGELOG.md build/staging/
+          rm -f build/staging/GameData/Bennu/Cache/*.bin
+          cd build/staging
+          zip -r "../Bennu-${{ steps.ver.outputs.version }}.zip" \
+            GameData Optional README.md LICENSE CHANGELOG.md
+          cd ..
+          unzip -l "Bennu-${{ steps.ver.outputs.version }}.zip" | head -20
 
       - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Bennu ${{ steps.ver.outputs.version }}
-          files: build/Bennu-${{ steps.ver.outputs.version }}.zip
-          generate_release_notes: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.ver.outputs.version }}" \
+            "build/Bennu-${{ steps.ver.outputs.version }}.zip" \
+            --title "Bennu ${{ steps.ver.outputs.version }}" \
+            --generate-notes \
+            || gh release upload "v${{ steps.ver.outputs.version }}" \
+                 "build/Bennu-${{ steps.ver.outputs.version }}.zip" --clobber

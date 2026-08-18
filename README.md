@@ -2,6 +2,11 @@
 
 **101955 Bennu as a real celestial body — not a stock asteroid.**
 
+[![KSP 1.12.x](https://img.shields.io/badge/KSP-1.12.x-blue)](https://www.kerbalspaceprogram.com/)
+[![Requires Kopernicus](https://img.shields.io/badge/requires-Kopernicus-orange)](https://github.com/Kopernicus/Kopernicus)
+[![Latest release](https://img.shields.io/github/v/release/CritZitGaming/KSP-Bennu)](https://github.com/CritZitGaming/KSP-Bennu/releases)
+[![Licence: CC BY-NC-SA 4.0](https://img.shields.io/badge/licence-CC%20BY--NC--SA%204.0-lightgrey)](LICENSE)
+
 <p align="center">
   <img src="Tools/preview/globe_tilt30.png" width="420" alt="Bennu rendered from the shipped height, colour and normal maps">
 </p>
