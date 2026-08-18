@@ -4,16 +4,40 @@
 controlled alongside the pack, but **CKAN does not read it from this repo** — it has to be
 submitted to the CKAN metadata index.
 
-## Getting listed
+## Prerequisite
 
-1. Publish a GitHub release with an attached zip named `Bennu-<version>.zip` containing
-   `GameData/Bennu/` at the zip root. The `Release` workflow in `.github/workflows/` does
-   this automatically when you push a `v<version>` tag.
-2. Fork <https://github.com/KSP-CKAN/NetKAN>.
-3. Copy `Bennu.netkan` into that fork's `NetKAN/` directory.
-4. Open a pull request. The CKAN bot validates and inflates the file on the PR; if it
-   builds cleanly a maintainer merges it, and the indexer picks up every future release
-   automatically.
+A published GitHub release with an attached zip named `Bennu-<version>.zip` containing
+`GameData/Bennu/` at the zip root. The `Release` workflow in `.github/workflows/` builds
+and attaches this automatically when you push a `v<version>` tag.
+
+## Getting listed — two routes
+
+CKAN requires the mod author's permission to index a mod. You are the author, so say so
+either way.
+
+**Pull request (uses this file as written):**
+
+1. Fork <https://github.com/KSP-CKAN/NetKAN>.
+2. Copy `Bennu.netkan` into that fork's `NetKAN/` directory.
+3. Open a pull request. CI validates and inflates the file on the PR; if it builds cleanly
+   a maintainer merges it.
+
+Note that NetKAN requires all contributions to that repo be made under CC-0. That covers
+the metadata file only, not the mod.
+
+**Issue (CKAN's "express" route):**
+
+Open an issue on <https://github.com/KSP-CKAN/NetKAN/issues> giving the repo URL, that
+you're the author, and the dependencies. The CKAN team writes the metadata for you. Slower,
+but you don't have to get the netkan right yourself.
+
+Either way, once it's merged the indexer picks up every future release automatically.
+
+## A note on `homepage`
+
+CKAN's guide says `homepage` should point to a KSP forum support thread. There isn't one,
+so it currently points at the GitHub repo. If you post a release thread on the KSP forum,
+change `homepage` to that URL — it's what CKAN shows players looking for support.
 
 ## How the pieces connect
 

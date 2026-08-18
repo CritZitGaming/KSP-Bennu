@@ -26,7 +26,9 @@ suggests:
   - name: KerbalFX
   - name: Deferred
 resources:
+  homepage: https://github.com/CritZitGaming/KSP-Bennu
   repository: https://github.com/CritZitGaming/KSP-Bennu
+  bugtracker: https://github.com/CritZitGaming/KSP-Bennu/issues
 install:
   - find: Bennu
     install_to: GameData
