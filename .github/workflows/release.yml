@@ -1,0 +1,57 @@
+name: Release
+
+# Tag a commit as e.g. v1.0.0 and push the tag. This builds the GameData-only zip
+# that CKAN's GitHub indexer looks for and attaches it to a GitHub release.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build, without the leading v (e.g. 1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check Bennu.version agrees with the tag
+        run: |
+          AVC=$(python3 -c "import json;v=json.load(open('GameData/Bennu/Bennu.version'))['VERSION'];print('%d.%d.%d'%(v['MAJOR'],v['MINOR'],v['PATCH']))")
+          if [ "$AVC" != "${{ steps.ver.outputs.version }}" ]; then
+            echo "::error::Bennu.version says $AVC but the tag says ${{ steps.ver.outputs.version }}. CKAN reads both; they must match."
+            exit 1
+          fi
+
+      - name: Build zip
+        run: |
+          mkdir -p build/Bennu
+          cp -r GameData build/Bennu/
+          cp -r Optional build/Bennu/
+          cp README.md LICENSE CHANGELOG.md build/Bennu/
+          rm -f build/Bennu/GameData/Bennu/Cache/*.bin
+          cd build/Bennu
+          zip -r "../Bennu-${{ steps.ver.outputs.version }}.zip" .
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Bennu ${{ steps.ver.outputs.version }}
+          files: build/Bennu-${{ steps.ver.outputs.version }}.zip
+          generate_release_notes: true

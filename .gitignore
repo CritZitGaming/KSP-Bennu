@@ -1,0 +1,12 @@
+# Kopernicus bakes the scaled-space mesh here on first load. Runtime artefact.
+GameData/Bennu/Cache/*.bin
+
+# Release packaging output
+build/
+dist/
+*.zip
+
+# OS cruft
+Thumbs.db
+desktop.ini
+.DS_Store

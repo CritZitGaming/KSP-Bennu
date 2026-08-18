@@ -1,0 +1,60 @@
+// =====================================================================================
+//  EVE (Environmental Visual Enhancements) compatibility for Bennu
+// =====================================================================================
+//
+//  SHORT VERSION: Bennu needs no EVE layers, and this file exists to record why rather
+//  than to leave you wondering whether something was forgotten.
+//
+//  (This is a .txt, not a .cfg, on purpose. As a .cfg containing only comments it made
+//  KSP log "Cannot create config from file" on every load - a harmless warning, but
+//  noise in a log you may need to read.)
+//
+//  EVE Redux renders clouds, atmospheric scattering, precipitation particle fields,
+//  wet surfaces, lightning, and inter-body eclipse shadows. Checking each against
+//  Bennu as this pack defines it:
+//
+//    EVE_CLOUDS                 - needs an atmosphere. Bennu has no Atmosphere node,
+//                                 so there is nothing to attach a cloud volume to.
+//                                 For reference, in the installed cloud pack the only
+//                                 bodies with layers are Kerbin, Eve, Duna, Laythe and
+//                                 Jool: every airless body has none, Mun and Gilly
+//                                 included.
+//    EVE_PARTICLE_FIELD_CONFIG  - rain and snow. Driven by a parent cloud layer's
+//                                 coverage via minCoverageThreshold, so it cannot be
+//                                 used without one.
+//    EVE_DROPLETS_CONFIG        - camera droplets in atmospheric flight. N/A.
+//    EVE_WET_SURFACES_CONFIG    - surface wetting from precipitation. N/A.
+//    EVE_LIGHTNING_CONFIG       - requires storm cloud layers. N/A.
+//    EVE_SHADOWS                - casts one body's shadow onto another. Bennu orbits
+//                                 the Sun directly and has no moons, so it has no
+//                                 casters and is a caster for nothing. Compare the
+//                                 stock entries, which all pair a moon with its
+//                                 planet (Gilly/Eve, Ike/Duna, Pol/Jool...).
+//
+//  Nothing in EVE applies a blanket patch across all bodies, so Bennu will not be
+//  picked up accidentally either. It renders through EVE's pipeline as any airless
+//  body does - which is to say, EVE stays out of the way and Parallax's scaled shader
+//  handles the look.
+//
+//  IF YOU LATER GIVE BENNU A MOON, or move it into orbit of a planet, add the eclipse
+//  relationship here:
+//
+//      EVE_SHADOWS
+//      {
+//          OBJECT
+//          {
+//              body = Bennu
+//              caster = <the body that should cast a shadow on it>
+//          }
+//      }
+//
+//  ONE THING DELIBERATELY NOT DONE
+//  -------------------------------
+//  Bennu is a genuinely active asteroid - OSIRIS-REx caught it repeatedly ejecting
+//  centimetre-scale particles off its own surface, which was one of the mission's
+//  real surprises. That would be a lovely thing to represent with an EVE layer. It is
+//  not included because EVE's particle fields are built on cloud coverage and would
+//  have to be faked with an invisible cloud volume, and a speculative effect that
+//  cannot be verified before shipping is worse than no effect. Noted here as a
+//  deliberate omission rather than an oversight.
+// =====================================================================================

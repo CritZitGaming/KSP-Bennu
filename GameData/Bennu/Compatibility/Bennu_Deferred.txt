@@ -1,0 +1,53 @@
+// =====================================================================================
+//  Deferred compatibility for Bennu
+// =====================================================================================
+//
+//  SHORT VERSION: nothing is required, and this file records what was checked so you
+//  are not left wondering whether it was overlooked.
+//
+//  (This is a .txt, not a .cfg, on purpose. As a .cfg containing only comments it made
+//  KSP log "Cannot create config from file" on every load - harmless, but noise.)
+//
+//  CONFIRMED IN FLIGHT TESTING: no Deferred-related errors or exceptions involving
+//  Bennu appear anywhere in KSP.log. The only visual issue that did show up was the
+//  body reading as glossy from the tracking station, which was Parallax specular and
+//  fresnel settings, not Deferred - fixed in Bennu_Parallax.cfg. Deferred's
+//  screen-space reflections were a contributing factor there, which is why the
+//  specular values are now near zero rather than merely low.
+//
+//  Deferred (assembly name `Deferred`, v1.3.5) replaces KSP's forward renderer with a
+//  deferred one and converts shaders globally. It has no per-body configuration - its
+//  entire config surface is the eleven global keys in zzz_Deferred/Deferred.cfg.
+//
+//  WHAT WAS CHECKED
+//  ----------------
+//  * Bennu's scaled-space material. Without Parallax it uses the stock
+//    Terrain/Scaled Planet (Simple) shader, which is in Deferred's replacement set.
+//    With Parallax it uses Custom/ParallaxScaled - and ParallaxContinued.dll carries
+//    its own Deferred handling, so that path is covered by Parallax itself.
+//  * PQS terrain. Deferred implements Deferred/ApplyPQSFade and its own PQS fade
+//    command buffers, which apply to every body's PQS including this one.
+//  * Precedent across this install: the only Deferred-gated patch present is a part
+//    material replacement (Bluedog_DB's X-15). Nothing anywhere patches a celestial
+//    body for Deferred, which matches Deferred being a renderer swap rather than a
+//    per-body effect.
+//  * Bennu declares no Atmosphere node, so none of Deferred's atmospheric or
+//    transparency paths are engaged.
+//
+//  ONE THING TO LOOK AT WHEN YOU TEST
+//  ----------------------------------
+//  Deferred ships ambientBrightness = 0.9 and ambientTint = 0.7 globally. That is a
+//  sensible default for ordinary terrain, but Bennu reflects 4.4% of incident light -
+//  it is the darkest thing in the system by a wide margin, and ambient lift shows up
+//  on it far more than on anything else. If the night side or shadowed crater floors
+//  read as grey haze rather than near-black, that is the cause, not this pack.
+//
+//  It is a global setting, so it is deliberately NOT changed here - lowering it would
+//  affect every body in your install. Adjust it in-game with Ctrl+Alt+D (the Deferred
+//  GUI), or edit zzz_Deferred/Deferred.cfg directly:
+//
+//      ambientBrightness = 0.9     ->  try 0.5 - 0.7 if Bennu looks washed out
+//
+//  PlanetShine's contribution is already tuned down for the same reason - see
+//  Bennu_PlanetShine.cfg, where intensity is derived from the real albedo (0.37).
+// =====================================================================================
