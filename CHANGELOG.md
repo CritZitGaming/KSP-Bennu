@@ -11,7 +11,6 @@ First public release.
 - Compatibility patches for Parallax Continued, PlanetShine, KerbalFX and SCANsat, plus a
   full stock + CRP resource distribution with per-biome overrides. All gated behind
   `:NEEDS[…]`.
-- Documented no-ops for EVE and Deferred, explaining why neither needs a patch.
 - `Tools/Validate-Bennu.ps1` static validator over the whole pack.
 
 Fixes applied after the first flight test — unlandable terrain from 8-bit height

@@ -186,18 +186,6 @@ defaults every pixel of Bennu's 0–219 m relief lands in the bottom 2.5% of the
 the map renders as one flat colour — complete, and useless. Per-resource display cutoffs
 are set for all twelve resources to match the abundances above.
 
-### EVE and Deferred
-
-**Neither needs anything, and both ship a `.txt` file documenting why** rather than leaving
-you to wonder whether something was forgotten. Every EVE subsystem needs an atmosphere,
-which Bennu doesn't have, and Deferred is a whole-renderer swap with no per-body config.
-
-One note if you run Deferred: it ships `ambientBrightness = 0.9` globally. That's fine for
-ordinary terrain, but Bennu reflects 4.4% of incident light, so ambient lift shows on it
-far more than on anything else. If the night side or shadowed crater floors read as grey
-haze instead of near-black, that's the cause. Drop it to 0.5–0.7 via Ctrl+Alt+D if it
-bothers you.
-
 ---
 
 ## Design decisions
@@ -282,6 +270,11 @@ workaround for one specific pack that does this (Eternal) — copy it into `Game
 those bodies stop being eligible for the main menu. It is kept outside `GameData/Bennu/`
 deliberately, because this pack shouldn't silently patch someone else's mod. The real fix
 is repairing that pack's install.
+
+**The night side and shadowed crater floors look like grey haze instead of near-black.**
+Something in your install is lifting ambient light. Bennu reflects 4.4% of incident light,
+so ambient lift shows on it far more than on anything else. If you run Deferred, its global
+`ambientBrightness` defaults to 0.9 — drop it to 0.5–0.7 via Ctrl+Alt+D.
 
 ---
 

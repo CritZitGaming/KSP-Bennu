@@ -214,27 +214,6 @@ in its UI and a saved entry plus this patch would otherwise leave two.
 Stock's 2.5/14 resource cutoff defaults would saturate solid for Hydrates (which reaches 50)
 and stay invisible for Uraninite (which peaks at 1.2), hence the per-resource cutoffs.
 
-### EVE — `Bennu_EVE.txt`
-
-Nothing is required, and the file documents why rather than leaving you guessing. Every EVE
-subsystem was checked: clouds, particle fields, droplets, wet surfaces and lightning all need
-an atmosphere. `EVE_SHADOWS` pairs a body with something that eclipses it — Bennu orbits the
-Sun directly and has no moons, so it has no casters and casts on nothing.
-
-One thing deliberately left out: Bennu is a genuinely active asteroid — OSIRIS-REx caught it
-repeatedly ejecting centimetre-scale particles, one of the mission's real surprises. That
-would be a lovely EVE layer, but EVE's particle fields are driven by cloud coverage and would
-have to be faked with an invisible cloud volume. A speculative effect that can't be verified
-before shipping is worse than no effect.
-
-### Deferred — `Bennu_Deferred.txt`
-
-Also nothing required, also documented rather than left silent. Deferred is a whole-renderer
-swap with no per-body config — its entire surface is eleven global keys. Bennu's scaled
-material is either the stock scaled-planet shader (in Deferred's replacement set) or
-`Custom/ParallaxScaled` (and ParallaxContinued.dll carries its own Deferred handling).
-Deferred implements the PQS fade path for all bodies.
-
 ### Resources — `Bennu_Resources.cfg`
 
 Without this, Bennu would inherit only the stock global Ore distribution and every CRP
