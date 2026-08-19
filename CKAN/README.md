@@ -55,3 +55,20 @@ zip filename, and `Bennu.version`. The release workflow fails the build if the t
 
 Nothing further is needed. Once the netkan is merged, tagging a new release is enough —
 the CKAN indexer polls GitHub and publishes the new version on its own.
+
+## When the listing is approved
+
+The root `README.md` carries a "not on CKAN yet" notice in two places — a banner under the
+badges and a note in the Install section. Both are wrapped in markers:
+
+```
+<!-- CKAN-PENDING:START ... -->
+<!-- CKAN-PENDING:END -->
+```
+
+Delete everything between and including those markers. What's left underneath is already
+written for the approved state, so nothing else needs editing.
+
+```bash
+grep -n "CKAN-PENDING" README.md
+```

@@ -7,6 +7,11 @@
 [![Latest release](https://img.shields.io/github/v/release/CritZitGaming/KSP-Bennu)](https://github.com/CritZitGaming/KSP-Bennu/releases)
 [![Licence: CC BY-NC-SA 4.0](https://img.shields.io/badge/licence-CC%20BY--NC--SA%204.0-lightgrey)](LICENSE)
 
+<!-- CKAN-PENDING:START — delete this whole block once the NetKAN PR is merged -->
+> ⏳ **Not on CKAN yet.** The listing is [submitted and awaiting review](https://github.com/KSP-CKAN/NetKAN/pull/11461).
+> Until it's merged, grab it from [Releases](https://github.com/CritZitGaming/KSP-Bennu/releases) — see [Manual install](#manual).
+<!-- CKAN-PENDING:END -->
+
 <p align="center">
   <img src="Tools/preview/globe_tilt30.png" width="420" alt="Bennu rendered from the shipped height, colour and normal maps">
 </p>
@@ -29,6 +34,12 @@ KerbalFX like any planet.
 ## Install
 
 ### CKAN (recommended)
+
+<!-- CKAN-PENDING:START — delete this block once the NetKAN PR is merged; the line below is already correct -->
+*Not available through CKAN yet — the [listing](https://github.com/KSP-CKAN/NetKAN/pull/11461)
+is awaiting review by the CKAN team. Use the manual install below in the meantime. Once it
+lands, this is all you'll need:*
+<!-- CKAN-PENDING:END -->
 
 Search for **Bennu** and install. CKAN will pull in Kopernicus and Module Manager for you.
 
