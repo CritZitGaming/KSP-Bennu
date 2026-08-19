@@ -161,6 +161,30 @@ foreach ($f in $cfgs) {
         if (-not $refs.ContainsKey($p)) { $refs[$p] = @() }
         $refs[$p] += "$($f.Name):$ln"
     }
+    # So is the map node icon: iconTexture is looked up through GameDatabase, which
+    # indexes textures by extensionless URL.
+    $ln = 0
+    foreach ($l in (Get-Content $f.FullName)) {
+        $ln++
+        $code = ($l -replace '//.*$', '')
+        if ($code -notmatch '^\s*iconTexture\s*=\s*(\S+)\s*$') { continue }
+        $p = $Matches[1] + '.dds'
+        if (-not $refs.ContainsKey($p)) { $refs[$p] = @() }
+        $refs[$p] += "$($f.Name):$ln"
+    }
+}
+
+# Parallax no longer ships its terrain and scatter textures as loose files - they are
+# inside parallax-stock-terrain-textures.unity3d and friends, and KSPTextureLoader
+# resolves the old PluginData paths out of the bundle at load time. Parallax's own
+# Terrain.cfg still references them exactly the way this pack does, so a path that does
+# not exist on disk is only a real error if the owning mod has no bundle to serve it.
+function Test-AssetBundlePath([string] $relPath) {
+    $parts = $relPath -split '[\\/]'
+    if ($parts.Count -lt 1) { return $false }
+    $modDir = Join-Path $GameData $parts[0]
+    if (-not (Test-Path $modDir)) { return $false }
+    return @(Get-ChildItem -Path $modDir -Filter '*.unity3d' -File -ErrorAction SilentlyContinue).Count -gt 0
 }
 
 foreach ($p in ($refs.Keys | Sort-Object)) {
@@ -169,6 +193,9 @@ foreach ($p in ($refs.Keys | Sort-Object)) {
     if (Test-Path $inPack)      { Write-Host ("  OK   (pack) {0}" -f $p) -ForegroundColor DarkGray }
     elseif (Test-Path $inGame)  { Write-Host ("  OK   (game) {0}" -f $p) -ForegroundColor DarkGray }
     elseif ($p -like '*Cache*') { Write-Host ("  --   (generated at runtime) {0}" -f $p) -ForegroundColor DarkGray }
+    elseif (Test-AssetBundlePath $p) {
+        Write-Host ("  OK   (bundle) {0}" -f $p) -ForegroundColor DarkGray
+    }
     else { Fail "missing asset: $p  (referenced by $($refs[$p] -join ', '))" }
 }
 

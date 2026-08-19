@@ -13,9 +13,11 @@ procedurally and deterministically.
 ```
 Tools/
   BennuMapGen.cs            shape model, colour, normal and biome generation
+  BennuIconGen.cs           the map-view node icon
   Dds.cs                    DDS writer (L8, RGBA32, DXT1, DXT5nm + mipmaps)
   DdsPreview.cs             independent DDS decoder + shaded globe renderer
   Generate-BennuMaps.ps1    run this to (re)build the maps
+  Generate-BennuIcon.ps1    run this to (re)build the map icon
   Preview-BennuMaps.ps1     decode them back and render previews
   Validate-Bennu.ps1        static checks over the whole pack
 ```
@@ -61,6 +63,84 @@ Bennu's 0.044 albedo renders to about 61/255 in sRGB, and that is what the textu
 calibrated to — it only looks light in the preview renders, which lift exposure the way
 published mission imagery does. The physically correct 0.044 goes in Kopernicus's `albedo`
 field, where it drives solar panel output and thermals.
+
+---
+
+## The map node icon
+
+`Orbit { iconTexture }` replaces the icon KSP draws for the body in map view and the
+tracking station. Kopernicus turns the whole texture into a sprite with a centred pivot
+and hands it to `body.MapObject.uiNode.SetIcon`, so any square RGBA texture works — there
+is no atlas or cell layout to match.
+
+It is the one texture in the pack that does **not** live in `PluginData`. Kopernicus's
+`Texture2DParser` tries `GameDatabase.ExistsTexture` first and only then falls back to
+loading off disk, and KSP skips `PluginData` when building the GameDatabase. Putting the
+icon in a normal folder keeps it on the path that is guaranteed to resolve, and it costs
+16 KB.
+
+**It is the one place in this pack where a number is chosen for legibility over fidelity,
+and the source says so.** The literal silhouette is 1147 m at the equatorial crest against
+996 m at the poles — 1.13:1, which at the ~20 px KSP actually draws a node icon at is a
+circle, indistinguishable from every stock body. So the icon is drawn to the body's shape
+*law* — conical flanks meeting an equatorial crest, using the body's own crest width — with
+three proportions pushed until they survive at that size: polar ratio 0.52 rather than
+0.87, flank exponent 1.0 rather than 1.4 (straight flanks instead of rounded), and a small
+explicit crest. The 3D noise terms are not applied; they are sampled on the sphere and have
+no meaning for a 2D outline.
+
+Because the body is a solid of revolution whose radius depends only on latitude, the
+edge-on silhouette *is* the axial cross-section, so the outline is exact for the shape it
+is drawing rather than an approximation of a projection.
+
+```bash
+powershell -File Tools/Generate-BennuIcon.ps1
+```
+
+## Map view zoom
+
+`Properties { maxZoom }` is the number of metres that fit across the screen at the closest
+the camera will go. Kopernicus stores it on the body as `"maxZoom"` and its default is
+`10 * 6000` = 60,000 m:
+
+```csharp
+[ParserTarget("maxZoom")]
+public NumericParser<Single> MinDistance
+{
+    get { return Value.Get("maxZoom", 10 * 6000f); }
+    set { Value.Set("maxZoom", value.Value / 6000f); }
+}
+```
+
+That is fine for a planet and absurd for a body 2.3 km across — Bennu never grew past a few
+percent of the screen and the camera stopped several kilometres out. It ships at 2,500 m,
+which frames the whole body. The camera distance that implies is `2500 / (2 tan(fov/2))`,
+roughly 2.2 km from the centre against a maximum surface radius of 1168 m, so there is
+still most of a body radius of clearance. Below about 1400 it will start to clip.
+
+## Why the body went flat and glossy as you zoomed out
+
+The scaled-space material was running `_Hapke = 0.85` in `TerrainMaterialOverride`, *above*
+the terrain material's 0.6, on the theory that an airless body should read flat from a
+distance.
+
+That reasoning was backwards. Hapke backscatter is precisely the term that removes limb
+darkening, and Parallax's `ScaledShaderBank.cfg` notes that `Custom/ParallaxScaled` shares
+properties with the terrain shader — so this value really is what lights the body in map
+view. At 0.85 the terminator all but disappeared, leaving a uniformly bright disc that
+reads as smooth and glossy even with `_SpecularIntensity` and `_EnvironmentMapFactor` both
+at zero. The give-away was that it only happened as the body got small: near-field the PQS
+terrain was lit properly, far-field the scaled material took over with a different shading
+model.
+
+Scaled now matches terrain at 0.6, so the shading model no longer changes with distance.
+For calibration, Parallax gives Gilly — the closest stock analogue, and the texture set this
+pack borrows — **0.30**, the lowest of any stock body, and none of Parallax's own scaled
+configs override `_Hapke` at all.
+
+`_PlanetBumpScale` also went 1.0 → 1.25 (matching Ike), because Bennu shrinks to a handful
+of pixels faster than anything else in the system and the normal map's relief averages away
+toward flat as it mips down.
 
 ### Regenerating
 

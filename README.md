@@ -223,6 +223,13 @@ no polar pinching.
 powershell -File Tools/Generate-BennuMaps.ps1
 ```
 
+The map-view node icon is generated too — a flat-poled diamond drawn to the same shape law
+as the body, so reshaping the body reshapes the icon:
+
+```bash
+powershell -File Tools/Generate-BennuIcon.ps1
+```
+
 Every seed is fixed, so a re-run reproduces identical bytes. There is also a validator that
 checks the whole pack — brace balance, live reflection of every config key against your
 installed `Kopernicus.dll`, texture path resolution, byte-exact biome colour matching in
@@ -240,9 +247,14 @@ in [docs/TECHNICAL.md](docs/TECHNICAL.md).**
 
 ## Known limits
 
-- **Flight-tested once**, with fixes applied afterward but not yet re-flown. Scatter density
-  is the value most likely to still want tuning — it was cut hard and deliberately errs
-  sparse. `spawnChance` in `Bennu_Parallax_Scatters.cfg` is the single knob.
+- **Flight-tested twice**, with fixes applied afterward but not yet re-flown. Scatter
+  density is the value most likely to still want tuning — it was cut hard and deliberately
+  errs sparse. `spawnChance` in `Bennu_Parallax_Scatters.cfg` is the single knob.
+- **The 1.1.0 scaled-space lighting change is reasoned, not yet observed.** Dropping
+  `_Hapke` from 0.85 to 0.6 in `Bennu_Parallax.cfg` should stop the body flattening out as
+  you zoom away from it, but it is a visual judgement that needs eyes on it in map view.
+  If it still reads too flat, drop the scaled and terrain values together toward Gilly's
+  0.30.
 - **Prograde rotation**, for the reason above.
 - **No custom rock models.** Boulders reuse Gilly's meshes. They're good meshes and Bennu's
   real boulders are angular dark rubble, so it reads well, but they aren't Bennu-specific.
