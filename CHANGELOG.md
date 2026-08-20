@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- **The Nightingale sample site is now a real place.** It was a biome colour with nothing
+  under it; it is now a prepared landing site at 56 N 42 E, where OSIRIS-REx collected its
+  sample in October 2020. A 60 m flat disc blended back into natural terrain over the next
+  80 m, cut 5.2 m into the crater floor at its deepest and filling 2.5 m at its shallowest.
+  Bennu's 99th-percentile slope is 38.8 deg and its gravity is 0.049 m/s^2, so a lander
+  that lands on a slope slides; one prepared site gives the body a destination without
+  smoothing the character out of the rest of it. Delete `Bennu/Configs/Bennu_Landmarks.cfg`
+  if you would rather it were untouched.
+- **Validator: new section 5c.** Pad altitude is a constant in a config, and the terrain
+  under it comes from a regenerated map - so a change to the generator could silently
+  leave the pad floating or buried with nothing to catch it. 5c re-samples the shipped
+  height map underneath every pad, checks the flatten target is still inside the local
+  relief, and fails if the blend rim exceeds 30 deg. Section 2 now checks parser keys
+  across every file that writes into the Kopernicus node, not only Bennu.cfg.
+
 ## 1.1.1
 
 Packaging only — the body, terrain and compatibility patches are unchanged from 1.1.0.

@@ -109,6 +109,18 @@ so an over-enthusiastic RCS burst will put your lander in orbit.
 The body reflects 4.4% of the light that reaches it — darker than charcoal. The unlit side
 is essentially black, and solar panel output and thermals are driven by that real albedo.
 
+### The Nightingale landing site
+
+Median slope across Bennu is 9.7°, but the top 1% is 38.8° — and under 0.049 m/s² a
+lander that touches down on a slope slides instead of settling. One site is prepared:
+**Nightingale Crater, 56°N 42°E**, where OSIRIS-REx actually collected its sample in
+October 2020. It's a 60 m dead-flat disc blended back into natural terrain over the
+following 80 m, cut 5.2 m into the crater floor at its deepest.
+
+It is flat, not swept — Parallax boulders can still spawn on it, and they're collideable.
+Everything outside that one disc is untouched. `Bennu/Configs/Bennu_Landmarks.cfg` is
+self-contained, so delete it if you'd rather nothing on the body were prepared.
+
 ### Biomes
 
 Thirteen, using real IAU nomenclature — Bennu's features are named for birds and

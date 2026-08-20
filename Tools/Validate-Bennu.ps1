@@ -120,19 +120,27 @@ if ($knownKeys) {
     # Node names and MM operators are not parser keys; only check `key = value` lines
     # inside the Kopernicus body config.
     $ignore = @('name','enabled','order','value','color','displayName','key')
-    $bennuCfg = Join-Path $cfgDir 'Configs\Bennu.cfg'
-    $ln = 0
-    foreach ($l in (Get-Content $bennuCfg)) {
-        $ln++
-        $code = ($l -replace '//.*$', '').Trim()
-        if ($code -notmatch '^([%@+\-*!]?)([A-Za-z_][A-Za-z0-9_]*)\s*=') { continue }
-        $k = $Matches[2]
-        if ($ignore -contains $k) { continue }
-        if (-not $knownKeys.Contains($k)) {
-            Fail "Bennu.cfg line ${ln}: '$k' is not a Kopernicus parser key"
+    # Every pack file that writes into the Kopernicus node, not just the body definition.
+    $kopCfgs = @('Configs\Bennu.cfg', 'Configs\Bennu_Landmarks.cfg')
+    foreach ($rel in $kopCfgs) {
+        $f = Join-Path $cfgDir $rel
+        if (-not (Test-Path $f)) { Fail "$rel is missing"; continue }
+        $leaf = Split-Path -Leaf $f
+        $ln = 0
+        foreach ($l in (Get-Content $f)) {
+            $ln++
+            $code = ($l -replace '//.*$', '').Trim()
+            if ($code -notmatch '^([%@+\-*!]?)([A-Za-z_][A-Za-z0-9_]*)\s*=') { continue }
+            $k = $Matches[2]
+            if ($ignore -contains $k) { continue }
+            if (-not $knownKeys.Contains($k)) {
+                Fail "${leaf} line ${ln}: '$k' is not a Kopernicus parser key"
+            }
         }
     }
-    if ($script:Errors.Count -eq 0) { Write-Host '  all keys in Bennu.cfg recognised' -ForegroundColor DarkGray }
+    if ($script:Errors.Count -eq 0) {
+        Write-Host "  all keys in $($kopCfgs.Count) Kopernicus configs recognised" -ForegroundColor DarkGray
+    }
 }
 
 # -------------------------------------------------------------------------------------
@@ -305,6 +313,83 @@ if ((Test-Path $heightDds) -and $null -ne $genDatum -and $null -ne $genDef) {
     }
 } else {
     Warn 'height map or derived values missing; slope check skipped'
+}
+
+# -------------------------------------------------------------------------------------
+#  5c. Landmark pads - does the prepared surface still sit on the terrain?
+#
+#  A FlattenArea is a fixed altitude written into a config; the terrain under it comes
+#  from a regenerated map. Change the generator and the pad silently becomes a mesa or a
+#  pit with nothing to catch it. This re-samples the shipped height map underneath every
+#  pad and checks the flattenTo is still inside the local relief.
+# -------------------------------------------------------------------------------------
+Section '5c. Landmark pads'
+
+$lmCfg = Join-Path $cfgDir 'Configs\Bennu_Landmarks.cfg'
+if ((Test-Path $lmCfg) -and $himg -and $null -ne $genDatum -and $null -ne $genDef) {
+
+    # Same lat/lon -> texel mapping as BennuMapGen.BuildBiomeMap, row 0 = south pole.
+    function Get-DiscHeights($img, $lat, $lon, $radiusM, $datum, $deformity) {
+        $circ  = 2 * [math]::PI * $datum
+        $mX    = ($circ / $img.W) * [math]::Cos($lat * [math]::PI / 180)
+        $mY    = ($circ / 2) / $img.H
+        $rX    = [math]::Max(1, [int][math]::Ceiling($radiusM / $mX))
+        $rY    = [math]::Max(1, [int][math]::Ceiling($radiusM / $mY))
+        $j0    = [int][math]::Floor((($lat / 180.0) + 0.5) * $img.H)
+        $i0    = [int][math]::Floor(((($lon + 540.0) % 360.0) / 360.0) * $img.W)
+        $out   = New-Object System.Collections.Generic.List[double]
+        for ($dj = -$rY; $dj -le $rY; $dj++) {
+            $jj = $j0 + $dj; if ($jj -lt 0 -or $jj -ge $img.H) { continue }
+            for ($di = -$rX; $di -le $rX; $di++) {
+                $ii = ((($i0 + $di) % $img.W) + $img.W) % $img.W
+                $out.Add($img.Rgba[($jj * $img.W + $ii) * 4] / 255.0 * $deformity)
+            }
+        }
+        return $out
+    }
+
+    # One pad today; parsed as a list so adding a second does not need new code here.
+    $lmTxt = (Get-Content $lmCfg -Raw) -replace '//.*'
+    $pads  = [regex]::Matches($lmTxt,
+        '(?s)FlattenArea\s*\{.*?latitude\s*=\s*(?<lat>-?[0-9.]+).*?longitude\s*=\s*(?<lon>-?[0-9.]+).*?flattenTo\s*=\s*(?<to>-?[0-9.]+).*?innerRadius\s*=\s*(?<ir>[0-9.]+).*?outerRadius\s*=\s*(?<orad>[0-9.]+)')
+
+    if ($pads.Count -eq 0) {
+        Warn 'Bennu_Landmarks.cfg has no parseable FlattenArea; pad check skipped'
+    }
+    foreach ($p in $pads) {
+        $lat = [double]$p.Groups['lat'].Value
+        $lon = [double]$p.Groups['lon'].Value
+        $to  = [double]$p.Groups['to'].Value
+        $ir  = [double]$p.Groups['ir'].Value
+        $orad= [double]$p.Groups['orad'].Value
+
+        $disc = Get-DiscHeights $himg $lat $lon $ir  $genDatum $genDef | Sort-Object
+        $ring = Get-DiscHeights $himg $lat $lon $orad $genDatum $genDef | Sort-Object
+        $dMin = $disc[0]; $dMax = $disc[$disc.Count - 1]
+        $rMin = $ring[0]; $rMax = $ring[$ring.Count - 1]
+
+        Write-Host ("  pad at {0} N {1} E: flattenTo {2} m, disc {3:N1}-{4:N1} m, ring {5:N1}-{6:N1} m" -f `
+            $lat, $lon, $to, $dMin, $dMax, $rMin, $rMax)
+        Write-Host ("    cut {0:N1} m / fill {1:N1} m" -f ($dMax - $to), ($to - $dMin)) -ForegroundColor DarkGray
+
+        if ($to -lt $rMin -or $to -gt $rMax) {
+            Fail ("pad flattenTo={0} is outside the {1:N1}-{2:N1} m relief of its own blend ring - it will read as a mesa or a pit" -f $to, $rMin, $rMax)
+        } elseif ($to -lt $dMin -or $to -gt $dMax) {
+            Warn ("pad flattenTo={0} is outside the flat disc's own {1:N1}-{2:N1} m range" -f $to, $dMin, $dMax)
+        } else {
+            Write-Host ("    OK   sits inside the local relief") -ForegroundColor DarkGray
+        }
+
+        # Steepest part of a cubic Hermite blend with zero end tangents is 1.5x average.
+        $rimSlope = [math]::Atan(1.5 * [math]::Max($rMax - $to, $to - $rMin) / ($orad - $ir)) * 180 / [math]::PI
+        if ($rimSlope -gt 30) {
+            Fail ("blend rim reaches about {0:N0} deg - widen outerRadius" -f $rimSlope)
+        } else {
+            Write-Host ("    OK   blend rim peaks near {0:N0} deg" -f $rimSlope) -ForegroundColor DarkGray
+        }
+    }
+} else {
+    Warn 'landmark config, height map or derived values missing; pad check skipped'
 }
 
 # -------------------------------------------------------------------------------------
