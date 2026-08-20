@@ -42,12 +42,12 @@ jobs:
       - name: Build zip
         run: |
           mkdir -p build/staging
-          cp -r Bennu Optional build/staging/
+          cp -r Bennu build/staging/
           cp README.md LICENSE CHANGELOG.md build/staging/
           rm -f build/staging/Bennu/Cache/*.bin
           cd build/staging
           zip -r "../Bennu-${{ steps.ver.outputs.version }}.zip" \
-            Bennu Optional README.md LICENSE CHANGELOG.md
+            Bennu README.md LICENSE CHANGELOG.md
           cd ..
           unzip -l "Bennu-${{ steps.ver.outputs.version }}.zip" | head -20
 

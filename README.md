@@ -286,15 +286,6 @@ Delete `Bennu/Cache/Bennu.bin` and let Kopernicus rebuild it. (With Parallax
 Continued installed that folder stays empty, which is expected — Parallax displaces a dense
 uniform sphere from the height map instead of using a PQS-baked mesh.)
 
-**A white, untextured body appears in my main menu.**
-That is almost certainly not Bennu. Kopernicus picks the main menu body at random from
-those flagged `randomMainMenuBody`, and a planet pack with missing textures will render
-white while its atmosphere rim still draws. `Optional/EternalMainMenuFix.cfg` is a
-workaround for one specific pack that does this (Eternal) — copy it into `GameData` and
-those bodies stop being eligible for the main menu. It is kept outside `Bennu/`
-deliberately, because this pack shouldn't silently patch someone else's mod. The real fix
-is repairing that pack's install.
-
 **The night side and shadowed crater floors look like grey haze instead of near-black.**
 Something in your install is lifting ambient light. Bennu reflects 4.4% of incident light,
 so ambient lift shows on it far more than on anything else. If you run Deferred, its global
