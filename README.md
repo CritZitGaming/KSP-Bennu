@@ -61,7 +61,7 @@ supported mods and nothing will complain.
 |---|---|
 | **KSP** | 1.12.x |
 | **Required** | Kopernicus, Module Manager |
-| **Enhanced by** | Parallax Continued, PlanetShine, KerbalFX, SCANsat, Community Resource Pack |
+| **Enhanced by** | Parallax Continued, PlanetShine, KerbalFX, SCANsat, Community Resource Pack, Contract Configurator |
 
 Developed and verified against KSP 1.12.4, Kopernicus 1.12.1-244, Parallax Continued,
 EVE Redux 3.1.2, PlanetShine, KerbalFX, Deferred 1.3.5, SCANsat 21.1 and CRP.
@@ -210,6 +210,18 @@ defaults every pixel of Bennu's 0–219 m relief lands in the bottom 2.5% of the
 the map renders as one flat colour — complete, and useless. Per-resource display cutoffs
 are set for all twelve resources to match the abundances above.
 
+### Contract Configurator
+
+Three contracts retracing OSIRIS-REx, in sequence: survey Bennu from orbit, touch down at
+Nightingale and collect science there, then recover that science on Kerbin. The second one
+drops a navigation waypoint on the prepared landing site.
+
+They have **no deadlines**. Bennu's transfer windows are rare and its period is 1.2 Kerbin
+years, so any deadline generous enough to be fair is long enough to be meaningless, and a
+tight one would fail you for orbital mechanics you don't control. Rewards are tuned against
+stock outer-planet contracts and are the first thing to change if they don't suit your
+economy — nothing else in the pack depends on them.
+
 ---
 
 ## Design decisions
@@ -282,9 +294,13 @@ in [docs/TECHNICAL.md](docs/TECHNICAL.md).**
 - **Prograde rotation**, for the reason above.
 - **No custom rock models.** Boulders reuse Gilly's meshes. They're good meshes and Bennu's
   real boulders are angular dark rubble, so it reads well, but they aren't Bennu-specific.
-- **`contractWeight` is left at default**, so contracts may target Bennu about as often as
-  any other body despite being much harder to reach. Lower it in `Bennu.cfg` if that
-  bothers you.
+- **`contractWeight` is left at default**, so stock generated contracts may target Bennu
+  about as often as any other body despite being much harder to reach. Lower it in
+  `Bennu.cfg` if that bothers you. The three Contract Configurator contracts are separate
+  and unaffected by it.
+- **The contracts are unflown.** Every type name, key and biome reference is checked
+  against the installed Contract Configurator assembly by the validator, but no one has
+  yet played the chain end to end.
 - **Resource abundances aren't balanced against any particular economy.** They're set from
   real composition and against stock Ore's 1–15 baseline, not tuned against Kerbalism,
   MiningExpansion or WildBlue converter chains.

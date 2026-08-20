@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **An OSIRIS-REx contract chain**, gated on Contract Configurator. Three contracts in
+  sequence: survey Bennu from orbit and hold station for six hours, touch down at
+  Nightingale and collect science there, then recover that science on Kerbin. The second
+  drops a navigation waypoint on the prepared pad. No deadlines - Bennu's windows are rare
+  and its period is 1.2 Kerbin years, so a fair deadline is a meaningless one and a tight
+  deadline punishes players for orbital mechanics rather than for decisions. Contract
+  Configurator has no parser attributes, so every key used was read out of the installed
+  assembly's IL rather than from memory.
+- **Validator: new section 8.** Contract Configurator resolves types by class name and
+  silently drops a contract whose type it cannot find, so this checks every `type =`
+  against the classes in the installed assembly, checks contract biome names exist on the
+  body, checks each chained contract names one that is actually defined, and checks the
+  Nightingale waypoint still sits on the Nightingale pad - those last two live in separate
+  files, and nothing else would notice if one moved without the other.
 - **The Nightingale sample site is now a real place.** It was a biome colour with nothing
   under it; it is now a prepared landing site at 56 N 42 E, where OSIRIS-REx collected its
   sample in October 2020. A 60 m flat disc blended back into natural terrain over the next

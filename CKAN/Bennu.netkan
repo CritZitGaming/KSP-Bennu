@@ -24,6 +24,7 @@ suggests:
   - name: CommunityResourcePack
   - name: SCANsat
   - name: KerbalFX
+  - name: ContractConfigurator
 resources:
   homepage: https://github.com/CritZitGaming/KSP-Bennu
   repository: https://github.com/CritZitGaming/KSP-Bennu

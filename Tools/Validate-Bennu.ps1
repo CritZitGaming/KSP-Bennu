@@ -11,7 +11,12 @@
 #       the live GameData
 #    4. Biome colours in Bennu.cfg match the generated biome map byte-for-byte
 #    5. Height-map deformity in Bennu.cfg agrees with what the generator produced
+#   5b. Terrain slope, including the facets 8-bit height quantisation bakes in
+#   5c. Prepared landing pads still sit on the terrain the height map actually has
 #    6. Derived orbital and surface physics, printed for sanity
+#    7. Resources and their SCANsat display cutoffs
+#    8. Contract types, biomes and waypoints checked against the installed
+#       ContractConfigurator assembly and against the pad they point at
 #
 #  Usage:  .\Tools\Validate-Bennu.ps1  [-GameData "<path to KSP GameData>"]
 # =====================================================================================
@@ -530,6 +535,102 @@ if (Test-Path $resCfg) {
         }
     } else {
         Warn 'Bennu_SCANsat.cfg not found'
+    }
+}
+
+# -------------------------------------------------------------------------------------
+#  8. Contracts
+#
+#  Contract Configurator resolves parameter, requirement and behaviour types by class
+#  name at load time, and a name it does not recognise is a log line rather than a
+#  crash - the contract simply never appears. So check every type name against the
+#  classes in the installed assembly, and check the site the contracts point at is
+#  still the site the terrain config prepares.
+# -------------------------------------------------------------------------------------
+Section '8. Contracts'
+
+$ccCfg = Join-Path $cfgDir 'Compatibility\Bennu_Contracts.cfg'
+$ccDll = Join-Path $GameData 'ContractConfigurator\ContractConfigurator.dll'
+
+if (-not (Test-Path $ccCfg)) {
+    Warn 'Bennu_Contracts.cfg not found'
+} else {
+    $ccTxt = (Get-Content $ccCfg -Raw) -replace '//.*'
+
+    if (Test-Path $ccDll) {
+        $ccNames = $null
+        try {
+            $ccAsm = [System.Reflection.Assembly]::LoadFrom($ccDll)
+            $ccTypes = @()
+            try { $ccTypes = $ccAsm.GetTypes() } catch [System.Reflection.ReflectionTypeLoadException] {
+                $ccTypes = $_.Exception.Types | Where-Object { $_ -ne $null }
+            }
+            $ccNames = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+            foreach ($t in $ccTypes) {
+                if (-not $t.Name) { continue }
+                # CC strips the Factory / Requirement suffix to get the config type name.
+                [void]$ccNames.Add($t.Name)
+                [void]$ccNames.Add(($t.Name -replace 'Factory$', ''))
+                [void]$ccNames.Add(($t.Name -replace 'Requirement$', ''))
+            }
+            Write-Host "  reflected $($ccTypes.Count) types from ContractConfigurator.dll" -ForegroundColor DarkGray
+        } catch {
+            Warn "could not reflect ContractConfigurator.dll ($($_.Exception.Message)); type check skipped"
+        }
+
+        if ($ccNames) {
+            $used = [regex]::Matches($ccTxt, '(?m)^\s*type\s*=\s*(\S+)') |
+                    ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+            foreach ($u in $used) {
+                if ($ccNames.Contains($u)) {
+                    Write-Host ("  OK   type '{0}'" -f $u) -ForegroundColor DarkGray
+                } else {
+                    Fail "Bennu_Contracts.cfg uses type '$u', which is not a class in the installed ContractConfigurator"
+                }
+            }
+        }
+    } else {
+        Warn 'ContractConfigurator not installed; contract type check skipped'
+    }
+
+    # Biomes named in contracts must exist on the body.
+    $bTxt = Get-Content (Join-Path $cfgDir 'Configs\Bennu.cfg') -Raw
+    foreach ($m in [regex]::Matches($ccTxt, '(?m)^\s*biome\s*=\s*(.+?)\s*$')) {
+        $bn = $m.Groups[1].Value
+        if ($bTxt -match [regex]::Escape("name = $bn")) {
+            Write-Host ("  OK   biome '{0}'" -f $bn) -ForegroundColor DarkGray
+        } else {
+            Fail "contract targets biome '$bn' which is not declared in Bennu.cfg"
+        }
+    }
+
+    # The waypoint has to sit on the pad. These live in two different files, so nothing
+    # else would notice if one moved and the other did not.
+    $wp = [regex]::Match($ccTxt, '(?s)WAYPOINT\s*\{.*?latitude\s*=\s*(?<lat>-?[0-9.]+).*?longitude\s*=\s*(?<lon>-?[0-9.]+)')
+    if ($wp.Success -and (Test-Path $lmCfg)) {
+        $lmTxt2 = (Get-Content $lmCfg -Raw) -replace '//.*'
+        $pad = [regex]::Match($lmTxt2, '(?s)FlattenArea\s*\{.*?latitude\s*=\s*(?<lat>-?[0-9.]+).*?longitude\s*=\s*(?<lon>-?[0-9.]+)')
+        if ($pad.Success) {
+            $dLat = [math]::Abs([double]$wp.Groups['lat'].Value - [double]$pad.Groups['lat'].Value)
+            $dLon = [math]::Abs([double]$wp.Groups['lon'].Value - [double]$pad.Groups['lon'].Value)
+            if ($dLat -gt 0.01 -or $dLon -gt 0.01) {
+                Fail ("contract waypoint ({0},{1}) does not sit on the prepared pad ({2},{3})" -f `
+                    $wp.Groups['lat'].Value, $wp.Groups['lon'].Value, $pad.Groups['lat'].Value, $pad.Groups['lon'].Value)
+            } else {
+                Write-Host ("  OK   waypoint sits on the Nightingale pad") -ForegroundColor DarkGray
+            }
+        }
+    }
+
+    # A chained contract that names a contract which does not exist never unlocks.
+    $defined = [regex]::Matches($ccTxt, '(?m)^\s*name\s*=\s*(\w+)\s*$') | ForEach-Object { $_.Groups[1].Value }
+    foreach ($m in [regex]::Matches($ccTxt, '(?m)^\s*contractType\s*=\s*(\w+)')) {
+        $ct = $m.Groups[1].Value
+        if ($defined -contains $ct) {
+            Write-Host ("  OK   chains from '{0}'" -f $ct) -ForegroundColor DarkGray
+        } else {
+            Fail "contract requires completion of '$ct', which is not defined in this pack"
+        }
     }
 }
 
