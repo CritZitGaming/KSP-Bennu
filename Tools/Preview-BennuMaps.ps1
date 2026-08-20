@@ -1,4 +1,4 @@
-﻿# =====================================================================================
+# =====================================================================================
 #  Preview-BennuMaps.ps1
 #
 #  Reads the generated DDS files back, decodes them with an independent decoder, and
@@ -19,7 +19,7 @@ $ErrorActionPreference = 'Stop'
 
 $toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $root     = Split-Path -Parent $toolsDir
-$dataDir  = Join-Path $root 'GameData\Bennu\PluginData'
+$dataDir  = Join-Path $root 'Bennu\PluginData'
 $outDir   = Join-Path $toolsDir 'preview'
 
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null

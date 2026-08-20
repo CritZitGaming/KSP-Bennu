@@ -9,7 +9,7 @@ author:
   - CritZitGaming
 $kref: >-
   #/ckan/github/CritZitGaming/KSP-Bennu/version_from_asset/^Bennu-(?<version>[0-9.]+)\.zip$
-$vref: '#/ckan/ksp-avc/GameData/Bennu/Bennu.version'
+$vref: '#/ckan/ksp-avc/Bennu/Bennu.version'
 license: CC-BY-NC-SA-4.0
 tags:
   - config

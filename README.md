@@ -48,7 +48,8 @@ Search for **Bennu** and install. CKAN will pull in Kopernicus and Module Manage
 1. Install [Kopernicus](https://github.com/Kopernicus/Kopernicus/releases) and
    [Module Manager](https://github.com/sarbian/ModuleManager/releases) if you don't have them.
 2. Download the latest release zip from [Releases](https://github.com/CritZitGaming/KSP-Bennu/releases).
-3. Copy `GameData/Bennu/` into your KSP `GameData/` folder.
+3. Drag the `Bennu` folder straight into your KSP `GameData/` folder, so you end up with
+   `Kerbal Space Program/GameData/Bennu/`.
 
 That's it. Every compatibility patch is gated behind `:NEEDS[…]`, so anything you don't
 have installed is skipped silently — you can install this alongside any subset of the
@@ -160,7 +161,7 @@ The biome overrides reward actually scanning before you land:
 
 ## Mod compatibility
 
-All patches live in `GameData/Bennu/Compatibility/` and are gated behind `:NEEDS[…]`.
+All patches live in `Bennu/Compatibility/` and are gated behind `:NEEDS[…]`.
 
 ### Parallax Continued
 
@@ -281,7 +282,7 @@ in [docs/TECHNICAL.md](docs/TECHNICAL.md).**
 ## Troubleshooting
 
 **Bennu looks wrong in map view or the tracking station after I changed something.**
-Delete `GameData/Bennu/Cache/Bennu.bin` and let Kopernicus rebuild it. (With Parallax
+Delete `Bennu/Cache/Bennu.bin` and let Kopernicus rebuild it. (With Parallax
 Continued installed that folder stays empty, which is expected — Parallax displaces a dense
 uniform sphere from the height map instead of using a PQS-baked mesh.)
 
@@ -290,7 +291,7 @@ That is almost certainly not Bennu. Kopernicus picks the main menu body at rando
 those flagged `randomMainMenuBody`, and a planet pack with missing textures will render
 white while its atmosphere rim still draws. `Optional/EternalMainMenuFix.cfg` is a
 workaround for one specific pack that does this (Eternal) — copy it into `GameData` and
-those bodies stop being eligible for the main menu. It is kept outside `GameData/Bennu/`
+those bodies stop being eligible for the main menu. It is kept outside `Bennu/`
 deliberately, because this pack shouldn't silently patch someone else's mod. The real fix
 is repairing that pack's install.
 

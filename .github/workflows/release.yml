@@ -1,6 +1,6 @@
 name: Release
 
-# Tag a commit as e.g. v1.0.0 and push the tag. This builds the GameData-only zip
+# Tag a commit as e.g. v1.0.0 and push the tag. This builds the drop-in zip
 # that CKAN's GitHub indexer looks for and attaches it to a GitHub release.
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Check Bennu.version agrees with the tag
         run: |
-          AVC=$(python3 -c "import json;v=json.load(open('GameData/Bennu/Bennu.version'))['VERSION'];print('%d.%d.%d'%(v['MAJOR'],v['MINOR'],v['PATCH']))")
+          AVC=$(python3 -c "import json;v=json.load(open('Bennu/Bennu.version'))['VERSION'];print('%d.%d.%d'%(v['MAJOR'],v['MINOR'],v['PATCH']))")
           if [ "$AVC" != "${{ steps.ver.outputs.version }}" ]; then
             echo "::error::Bennu.version says $AVC but the tag says ${{ steps.ver.outputs.version }}. CKAN reads both; they must match."
             exit 1
@@ -42,12 +42,12 @@ jobs:
       - name: Build zip
         run: |
           mkdir -p build/staging
-          cp -r GameData Optional build/staging/
+          cp -r Bennu Optional build/staging/
           cp README.md LICENSE CHANGELOG.md build/staging/
-          rm -f build/staging/GameData/Bennu/Cache/*.bin
+          rm -f build/staging/Bennu/Cache/*.bin
           cd build/staging
           zip -r "../Bennu-${{ steps.ver.outputs.version }}.zip" \
-            GameData Optional README.md LICENSE CHANGELOG.md
+            Bennu Optional README.md LICENSE CHANGELOG.md
           cd ..
           unzip -l "Bennu-${{ steps.ver.outputs.version }}.zip" | head -20
 

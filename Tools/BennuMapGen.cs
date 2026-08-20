@@ -2,7 +2,7 @@
 //  BennuMapGen  --  procedural shape-model / texture generator for the KSP Bennu body
 // =====================================================================================
 //
-//  Produces, into GameData/Bennu/PluginData/:
+//  Produces, into Bennu/PluginData/:
 //
 //     Bennu_Height.dds   L8  4096x2048   PQS VertexHeightMap + Parallax scaled _HeightMap
 //     Bennu_Color.dds    DXT1 4096x2048  scaled-space albedo (+ mipmaps)

@@ -2,7 +2,7 @@
 #  Generate-BennuIcon.ps1
 #
 #  Compiles Tools\BennuIconGen.cs (+ Dds.cs and BennuMapGen.cs, for Cfg and the DDS
-#  writer) and writes the map-view node icon to GameData\Bennu\Icons\Bennu_Icon.dds,
+#  writer) and writes the map-view node icon to Bennu\Icons\Bennu_Icon.dds,
 #  plus a PNG preview in Tools\preview\.
 #
 #  Usage:   .\Tools\Generate-BennuIcon.ps1
@@ -31,7 +31,7 @@ $ErrorActionPreference = 'Stop'
 
 $toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $root     = Split-Path -Parent $toolsDir
-if (-not $OutDir)     { $OutDir     = Join-Path $root 'GameData\Bennu\Icons' }
+if (-not $OutDir)     { $OutDir     = Join-Path $root 'Bennu\Icons' }
 if (-not $PreviewDir) { $PreviewDir = Join-Path $toolsDir 'preview' }
 
 Write-Host ''

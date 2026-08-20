@@ -35,7 +35,7 @@ there are no antimeridian seams and no polar pinching.
 
 ### Outputs
 
-Into `GameData/Bennu/PluginData/`:
+Into `Bennu/PluginData/`:
 
 | File | Format | Used by |
 |---|---|---|

@@ -25,7 +25,7 @@ $ErrorActionPreference = 'Stop'
 
 $toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $root     = Split-Path -Parent $toolsDir
-$packData = Join-Path $root 'GameData'
+$packData = $root
 $cfgDir   = Join-Path $packData 'Bennu'
 
 $script:Errors   = New-Object System.Collections.Generic.List[string]

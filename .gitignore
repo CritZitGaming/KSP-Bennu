@@ -1,5 +1,5 @@
 # Kopernicus bakes the scaled-space mesh here on first load. Runtime artefact.
-GameData/Bennu/Cache/*.bin
+Bennu/Cache/*.bin
 
 # Release packaging output
 build/

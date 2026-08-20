@@ -7,7 +7,7 @@ submitted to the CKAN metadata index.
 ## Prerequisite
 
 A published GitHub release with an attached zip named `Bennu-<version>.zip` containing
-`GameData/Bennu/` at the zip root. The `Release` workflow in `.github/workflows/` builds
+`Bennu/` at the zip root. The `Release` workflow in `.github/workflows/` builds
 and attaches this automatically when you push a `v<version>` tag.
 
 ## Getting listed — two routes
@@ -44,8 +44,8 @@ change `homepage` to that URL — it's what CKAN shows players looking for suppo
 | Field | Reads from | Must stay in sync with |
 |---|---|---|
 | `$kref` … `version_from_asset` | the release asset filename | the zip name the workflow builds |
-| `$vref` `ksp-avc` | `GameData/Bennu/Bennu.version` inside the zip | the git tag, minus its leading `v` |
-| `install: find: Bennu` | the `GameData/Bennu` directory in the zip | the pack's folder name |
+| `$vref` `ksp-avc` | `Bennu/Bennu.version` inside the zip | the git tag, minus its leading `v` |
+| `install: find: Bennu` | the `Bennu` directory in the zip | the pack's folder name |
 
 The version number therefore appears in three places for every release — the git tag, the
 zip filename, and `Bennu.version`. The release workflow fails the build if the tag and

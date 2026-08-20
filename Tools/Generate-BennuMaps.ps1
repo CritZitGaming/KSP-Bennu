@@ -1,8 +1,8 @@
-﻿# =====================================================================================
+# =====================================================================================
 #  Generate-BennuMaps.ps1
 #
 #  Compiles Tools\BennuMapGen.cs + Tools\Dds.cs and writes the shape model, colour,
-#  normal and biome maps into GameData\Bennu\PluginData.
+#  normal and biome maps into Bennu\PluginData.
 #
 #  Usage:   .\Tools\Generate-BennuMaps.ps1
 #
@@ -23,7 +23,7 @@ $ErrorActionPreference = 'Stop'
 
 $toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $root     = Split-Path -Parent $toolsDir
-if (-not $OutDir) { $OutDir = Join-Path $root 'GameData\Bennu\PluginData' }
+if (-not $OutDir) { $OutDir = Join-Path $root 'Bennu\PluginData' }
 
 Write-Host ''
 Write-Host '=== Bennu map generator ===' -ForegroundColor Cyan
