@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.1
+
+Packaging only — the body, terrain and compatibility patches are unchanged from 1.1.0.
+
+- **The pack sits at the repository root now.** It was `GameData/Bennu`; it is now just
+  `Bennu`, and the release zip is shaped to match. Manual install is "drag `Bennu` into
+  your `GameData/`" rather than merging a `GameData` folder over your own — the old
+  shape worked, but merging directories is the step people get wrong. CKAN installs are
+  unaffected: the netkan already located the folder with `find`.
+- **Dropped the optional Eternal main menu patch.** It worked around a white body in the
+  main menu by disabling `randomMainMenuBody` on another pack's broken bodies. That turned
+  out to be one specific damaged install rather than anything to do with Bennu, and this
+  pack has no business patching someone else's mod. The release archive no longer carries
+  an `Optional/` folder.
+
 ## 1.1.0
 
 Map view and tracking station.
