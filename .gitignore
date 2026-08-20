@@ -10,3 +10,6 @@ dist/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Claude Code local settings (machine-specific paths, not portable)
+.claude/
