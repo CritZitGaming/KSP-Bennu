@@ -187,6 +187,14 @@ Detail textures and rock models are **referenced** from Parallax's own stock tex
 is copied or redistributed; the paths just have to resolve. Bennu's much darker
 carbonaceous colour comes from its own vertex colour map, which Parallax blends over those
 details.
+Scaled space (map view and the tracking station) runs in **`Baked` mode**, not the
+`FromTerrain` mode every stock body uses. `FromTerrain` composites the terrain detail
+textures over the colour map out there too — and since this pack borrows Gilly's detail
+set for a body considerably darker than Gilly, that borrowed rock ended up supplying most
+of Bennu's albedo, rendering it washed out and waxy. `Baked` draws the colour, normal and
+height maps directly, so the body shows the albedo it was authored with and shows the same
+one at every distance. On a stock body the two modes look alike, because a body's colour
+map and its own detail textures are of similar brightness.
 
 ### PlanetShine
 
@@ -286,11 +294,12 @@ in [docs/TECHNICAL.md](docs/TECHNICAL.md).**
 - **Flight-tested twice**, with fixes applied afterward but not yet re-flown. Scatter
   density is the value most likely to still want tuning — it was cut hard and deliberately
   errs sparse. `spawnChance` in `Bennu_Parallax_Scatters.cfg` is the single knob.
-- **The 1.1.0 scaled-space lighting change is reasoned, not yet observed.** Dropping
-  `_Hapke` from 0.85 to 0.6 in `Bennu_Parallax.cfg` should stop the body flattening out as
-  you zoom away from it, but it is a visual judgement that needs eyes on it in map view.
-  If it still reads too flat, drop the scaled and terrain values together toward Gilly's
-  0.30.
+- **Scaled space has been measured, but the fix has not been flown.** Frame captures of map
+  view showed the lit face at a flat ~100/255 against a colour map averaging 64.7/255, with
+  no blown-out pixels anywhere — too bright and too uniform, not glossy. The cause was the
+  detail-texture compositing described above, plus `_Hapke` at 0.6. Scaled space is now
+  `Baked` with `_Hapke` 0.30, and `Tools/Validate-Bennu.ps1` section 9 fails the build if
+  the two ever drift back. It has not yet been looked at in-game.
 - **Prograde rotation**, for the reason above.
 - **No custom rock models.** Boulders reuse Gilly's meshes. They're good meshes and Bennu's
   real boulders are angular dark rubble, so it reads well, but they aren't Bennu-specific.

@@ -635,6 +635,70 @@ if (-not (Test-Path $ccCfg)) {
 }
 
 # -------------------------------------------------------------------------------------
+#  9. Scaled-space albedo source
+#
+#  In Parallax's FromTerrain scaled mode the TERRAIN detail textures are composited over
+#  _ColorMap, weighted by the influence map. This pack borrows Gilly's detail set for a
+#  body far darker than Gilly, so in that mode the borrowed rock supplies most of the
+#  albedo and the body renders washed out - which is what "shiny in map view" turned out
+#  to be. Nothing else in the pipeline notices, because every file involved is valid.
+# -------------------------------------------------------------------------------------
+Section '9. Scaled-space albedo'
+
+$pxCfg = Join-Path $cfgDir 'Compatibility\Bennu_Parallax.cfg'
+if ((Test-Path $pxCfg) -and ([System.Management.Automation.PSTypeName]'BennuGen.Preview').Type) {
+    $pxTxt = (Get-Content $pxCfg -Raw) -replace '//.*'
+    $mode = if ($pxTxt -match '(?m)^\s*mode\s*=\s*(\w+)') { $Matches[1] } else { $null }
+    Write-Host "  scaled mode = $mode" -ForegroundColor DarkGray
+
+    function Get-MeanLuma($path) {
+        if (-not (Test-Path $path)) { return $null }
+        try { $img = [BennuGen.Preview]::Load($path) } catch { return $null }
+        $n = $img.W * $img.H
+        $stride = [Math]::Max(1, [int]($n / 120000))
+        [double]$sum = 0; $c = 0
+        for ($i = 0; $i -lt $n; $i += $stride) {
+            $o = $i * 4
+            $sum += 0.299 * $img.Rgba[$o] + 0.587 * $img.Rgba[$o+1] + 0.114 * $img.Rgba[$o+2]
+            $c++
+        }
+        return $sum / $c
+    }
+
+    $colorLuma = Get-MeanLuma (Join-Path $cfgDir 'PluginData\Bennu_Color.dds')
+    if ($null -ne $colorLuma) {
+        Write-Host ("  colour map mean luma {0:N1}/255 ({1:P0} albedo as authored)" -f $colorLuma, ($colorLuma/255)) -ForegroundColor DarkGray
+    }
+
+    if ($mode -eq 'FromTerrain') {
+        $detailPath = if ($pxTxt -match '_MainTexMid\s*=\s*(\S+)') { Join-Path $GameData $Matches[1] } else { $null }
+        $detailLuma = if ($detailPath) { Get-MeanLuma $detailPath } else { $null }
+        if ($null -ne $detailLuma -and $null -ne $colorLuma) {
+            $ratio = $detailLuma / $colorLuma
+            Write-Host ("  detail texture mean luma {0:N1}/255, ratio to colour map {1:N2}x" -f $detailLuma, $ratio) -ForegroundColor DarkGray
+            if ($ratio -gt 1.25) {
+                Fail ("FromTerrain mode composites the detail texture over the colour map, and the detail set is {0:N2}x brighter - scaled space will render washed out. Use mode = Baked, or supply detail textures matching this body's albedo." -f $ratio)
+            } else {
+                Write-Host '  OK   detail texture brightness is close enough to the colour map' -ForegroundColor DarkGray
+            }
+        }
+    } else {
+        Write-Host '  OK   Baked mode - scaled space renders the colour map directly, no detail compositing' -ForegroundColor DarkGray
+    }
+
+    # Hapke flattens shading and removes limb darkening. Stock bodies run 0.30 (Gilly) to
+    # 1.15 (Eve); anything darker than Gilly has no business above Gilly's value.
+    $scaledHapke = if ($pxTxt -match '(?s)TerrainMaterialOverride.*?_Hapke\s*=\s*([0-9.]+)') { [double]$Matches[1] } else { $null }
+    if ($null -ne $scaledHapke) {
+        if ($scaledHapke -gt 0.30) {
+            Warn ("scaled _Hapke is $scaledHapke; Gilly - the darkest stock body - ships 0.30, and above it the lit face flattens toward uniform")
+        } else {
+            Write-Host ("  OK   scaled _Hapke {0} is at or below Gilly's 0.30" -f $scaledHapke) -ForegroundColor DarkGray
+        }
+    }
+}
+
+# -------------------------------------------------------------------------------------
 Section 'Result'
 if ($script:Warnings.Count) {
     foreach ($w in $script:Warnings) { Write-Host "  WARN  $w" -ForegroundColor Yellow }

@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+- **Fixed the shiny look in map view, properly this time.** Two previous rounds went after
+  specular, fresnel and environment reflection. Frame captures pulled out of a map-view
+  recording say none of those were ever involved: 0.0% of the body's pixels are blown out,
+  so there is no highlight on it anywhere. What the capture does show is a lit face sitting
+  at a flat ~100/255 while the colour map it is meant to be displaying averages 64.7/255,
+  and no falloff from centre to limb. Uniformly too bright is what read as waxy.
+
+  The cause is that Parallax's `FromTerrain` scaled mode composites the *terrain* detail
+  textures over the colour map in scaled space. This pack borrows Gilly's detail set, which
+  averages 90.6/255, weighted by Gilly's influence map, which averages 0.16 - so the colour
+  map was contributing about 16% of Bennu's albedo and Gilly's much brighter rock the rest
+  (0.84 x 90.6 + 0.16 x 64.7 = 86.5, against ~100 measured, the remainder being Hapke).
+  It only bites here because on a stock body the colour map and its own detail textures are
+  of similar brightness; Bennu is the one body dark enough for a borrowed set to swamp it.
+
+  Scaled space now uses `mode = Baked`, which renders the colour, normal and height maps
+  directly with no terrain compositing, and scaled `_Hapke` drops 0.6 -> 0.30 (Parallax's
+  own value for Gilly, the lowest of the fifteen stock bodies) to put the limb darkening
+  back. The terrain is deliberately untouched - the surface reads correctly in flight, and
+  up close the local relief carries the shading.
+- **Validator: new section 9.** Fails the build if scaled space is in `FromTerrain` mode
+  while the detail textures are more than 1.25x brighter than the colour map, and warns if
+  scaled `_Hapke` climbs above Gilly's 0.30. Every file involved in this bug was valid and
+  every path resolved, so nothing else in the pipeline had any way to notice.
 - **An OSIRIS-REx contract chain**, gated on Contract Configurator. Three contracts in
   sequence: survey Bennu from orbit and hold station for six hours, touch down at
   Nightingale and collect science there, then recover that science on Kerbin. The second
