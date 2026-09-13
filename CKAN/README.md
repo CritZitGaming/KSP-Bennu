@@ -1,74 +1,45 @@
 # CKAN metadata
 
-`Bennu.netkan` is this mod's CKAN indexing metadata. It lives here so it is version
-controlled alongside the pack, but **CKAN does not read it from this repo** — it has to be
-submitted to the CKAN metadata index.
+**Bennu is listed on CKAN.** The submission ([KSP-CKAN/NetKAN#11461](https://github.com/KSP-CKAN/NetKAN/pull/11461))
+was merged on 2026-09-05, and the indexer publishes every new GitHub release on its own.
 
-## Prerequisite
+## Where the real metadata lives
 
-A published GitHub release with an attached zip named `Bennu-<version>.zip` containing
-`Bennu/` at the zip root. The `Release` workflow in `.github/workflows/` builds
-and attaches this automatically when you push a `v<version>` tag.
+The file CKAN actually reads is `NetKAN/Bennu.netkan` in
+<https://github.com/KSP-CKAN/NetKAN>. **Editing `Bennu.netkan` in this repo changes nothing
+on CKAN** — changes go in as a pull request against that repository, and contributions
+there are made under CC-0 (the metadata only, not the mod).
 
-## Getting listed — two routes
+The copy here mirrors the live file so the repo records what CKAN is doing. It differs by
+exactly one line, which has not been submitted yet:
 
-CKAN requires the mod author's permission to index a mod. You are the author, so say so
-either way.
+```yaml
+  - name: ContractConfigurator    # in suggests - the OSIRIS-REx contracts need it
+```
 
-**Pull request (uses this file as written):**
-
-1. Fork <https://github.com/KSP-CKAN/NetKAN>.
-2. Copy `Bennu.netkan` into that fork's `NetKAN/` directory.
-3. Open a pull request. CI validates and inflates the file on the PR; if it builds cleanly
-   a maintainer merges it.
-
-Note that NetKAN requires all contributions to that repo be made under CC-0. That covers
-the metadata file only, not the mod.
-
-**Issue (CKAN's "express" route):**
-
-Open an issue on <https://github.com/KSP-CKAN/NetKAN/issues> giving the repo URL, that
-you're the author, and the dependencies. The CKAN team writes the metadata for you. Slower,
-but you don't have to get the netkan right yourself.
-
-Either way, once it's merged the indexer picks up every future release automatically.
-
-## A note on `homepage`
-
-CKAN's guide says `homepage` should point to a KSP forum support thread. There isn't one,
-so it currently points at the GitHub repo. If you post a release thread on the KSP forum,
-change `homepage` to that URL — it's what CKAN shows players looking for support.
-
-## How the pieces connect
+The CKAN maintainer rewrote the original submission when merging it. Worth knowing, because
+it changes what each release has to get right:
 
 | Field | Reads from | Must stay in sync with |
 |---|---|---|
-| `$kref` … `version_from_asset` | the release asset filename | the zip name the workflow builds |
-| `$vref` `ksp-avc` | `Bennu/Bennu.version` inside the zip | the git tag, minus its leading `v` |
-| `install: find: Bennu` | the `Bennu` directory in the zip | the pack's folder name |
+| `$kref` `#/ckan/github/...` | the latest GitHub release and its attached zip | the workflow attaching exactly one zip |
+| `x_netkan_version_edit` | the release's git tag, with a leading `v` stripped | `Bennu/Bennu.version` |
+| `$vref` `ksp-avc` | `Bennu/Bennu.version` inside the zip | the tag, and where the zip puts the folder |
+| *(no `install` stanza)* | CKAN's default: the directory named after the identifier | the pack's folder staying `Bennu` |
 
-The version number therefore appears in three places for every release — the git tag, the
-zip filename, and `Bennu.version`. The release workflow fails the build if the tag and
-`Bennu.version` disagree.
+The version therefore comes from the **tag**, not the zip filename. The release workflow
+already fails the build if the tag and `Bennu.version` disagree, which is the check that
+matters.
 
-## After the first release
+## Releasing
 
-Nothing further is needed. Once the netkan is merged, tagging a new release is enough —
-the CKAN indexer polls GitHub and publishes the new version on its own.
+Push a `v<version>` tag. The `Release` workflow in `.github/workflows/` builds the zip with
+`Bennu/` at its root and attaches it, and CKAN picks the release up within a few hours.
+Nothing on the CKAN side needs touching.
 
-## When the listing is approved
+## Homepage
 
-The root `README.md` carries a "not on CKAN yet" notice in two places — a banner under the
-badges and a note in the Install section. Both are wrapped in markers:
-
-```
-<!-- CKAN-PENDING:START ... -->
-<!-- CKAN-PENDING:END -->
-```
-
-Delete everything between and including those markers. What's left underneath is already
-written for the approved state, so nothing else needs editing.
-
-```bash
-grep -n "CKAN-PENDING" README.md
-```
+The maintainer removed `homepage` from the definition, since there is no KSP forum thread
+yet. From their merge comment: when there is one, set it as the **website** of the GitHub
+repository (the field on the repo's About panel) and CKAN will pick it up from there
+automatically. No NetKAN change needed.

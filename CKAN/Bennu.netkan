@@ -1,15 +1,8 @@
 identifier: Bennu
 name: Bennu
-abstract: >-
-  101955 Bennu as a real Kopernicus celestial body rather than a stock asteroid
-  vessel - landable procedural terrain with colliders, thirteen IAU-named biomes
-  with their own science, a Kerbin-crossing orbit, and a resource distribution
-  taken from the OSIRIS-REx sample.
-author:
-  - CritZitGaming
-$kref: >-
-  #/ckan/github/CritZitGaming/KSP-Bennu/version_from_asset/^Bennu-(?<version>[0-9.]+)\.zip$
+$kref: '#/ckan/github/CritZitGaming/KSP-Bennu'
 $vref: '#/ckan/ksp-avc/Bennu/Bennu.version'
+x_netkan_version_edit: ^v?(?<version>.+)$
 license: CC-BY-NC-SA-4.0
 tags:
   - config
@@ -23,12 +16,6 @@ recommends:
 suggests:
   - name: CommunityResourcePack
   - name: SCANsat
-  - name: KerbalFX
+  - name: KerbalFX-RoverDust
+  - name: KerbalFX-ImpactPuffs
   - name: ContractConfigurator
-resources:
-  homepage: https://github.com/CritZitGaming/KSP-Bennu
-  repository: https://github.com/CritZitGaming/KSP-Bennu
-  bugtracker: https://github.com/CritZitGaming/KSP-Bennu/issues
-install:
-  - find: Bennu
-    install_to: GameData
